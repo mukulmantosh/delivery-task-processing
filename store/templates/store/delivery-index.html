@@ -1,0 +1,38 @@
+{% extends 'base/layouts.html' %}
+
+{% load static %}
+{% block content %}
+
+
+    <div class="col-md-4">
+        <div class="card">
+
+            <div class="header">
+                <img src="{% static 'assets/img/online-order.svg' %}" class="img-responsive">
+
+            </div>
+            <div class="content">
+                <a href="{% url 'store:delivery-order-list' %}" class="btn btn-primary btn-fill btn-block">
+                    VIEW LATEST ORDERS
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+
+            <div class="header">
+                <img src="{% static 'assets/img/accepted-orders.svg' %}" class="img-responsive">
+
+            </div>
+            <div class="content">
+                <a href="{% url 'store:delivery-task-accepted-order' %}" class="btn btn-success btn-fill btn-block">
+                    VIEW ACCEPTED ORDERS
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

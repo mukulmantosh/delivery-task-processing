@@ -1,0 +1,28 @@
+{% extends 'base/layouts.html' %}
+
+{% load static %}
+{% block content %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card-box">
+
+            <form method="post" action="{% url 'store:create-store' %}">
+
+                {% csrf_token %}
+
+                {% include 'store/form-templates/basic_form_template.html' %}
+
+
+                <div class="form-group text-right m-b-0">
+                    <button class="btn btn-primary waves-effect waves-light" type="submit">
+                        SUBMIT
+                    </button>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

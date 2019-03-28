@@ -1,0 +1,62 @@
+{% extends 'base/layouts.html' %}
+
+{% load static %}
+{% block content %}
+
+<h2>Accepted Orders</h2>
+
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="content table-responsive table-full-width">
+                            <table id="myTable" class="table table-hover table-striped">
+                                <thead>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Priority</th>
+                                <th>Order Accepted on</th>
+                                <th>Last Known State</th>
+                                <th></th>
+                                <th></th>
+                                </thead>
+                                <tbody>
+                                {% for data in result %}
+                                <tr>
+                                    <td>{{ data.id }}</td>
+                                    <td>{{ data.delivery_task.title }} </td>
+                                    <td>{{ data.delivery_task.priority }}</td>
+                                    <td>{{ data.created_at }}</td>
+                                    <td><strong>{{ data.delivery_status }}</strong></td>
+                                    <td>
+                                        <form action="{% url 'store:delivery-task-accepted-order' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="order_id" value="{{ data.id }}">
+                                            <input type="hidden" name="order_status" value="COMPLETED">
+                                            <button class="btn btn-primary btn-fill">COMPLETED</button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form action="{% url 'store:delivery-task-accepted-order' %}" method="post">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="order_id" value="{{ data.id }}">
+                                            <input type="hidden" name="order_status" value="DECLINED">
+                                            <button class="btn btn-danger btn-fill">DECLINED</button>
+                                        </form>
+                                    </td>
+
+                                </tr>
+
+                                {% endfor %}
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

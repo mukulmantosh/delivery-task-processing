@@ -1,0 +1,95 @@
+{% extends 'base/layouts.html' %}
+
+{% load static %}
+{% block content %}
+
+<h2>New Orders</h2>
+
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="content table-responsive table-full-width">
+                            <table id="myTable" class="table table-hover table-striped">
+                                <thead>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Priority</th>
+                                <th>Last Known State</th>
+                                <th>Action</th>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block scripts %}
+
+    <script>
+
+        $(document).ready(function () {
+            $.get("/api/v1/store/latest-delivery-task/", function (data, status) {
+
+                if (data["status"] === false) {
+                    $('#myTable tr td').remove();
+
+                } else {
+                    $('#myTable').append('<tr id="' + data["data"]["id"] + '"><td>' + data["data"]["id"] + '</td><td>' + data["data"]["title"] + '</td><td>' + data["data"]["priority"] + '</td><td><strong>' + data["data"]["last_known_state"] + '</strong></td><td><form action="{% url 'store:delivery-order-process' %}" method="post">{% csrf_token %}<input type="hidden" name="order_status" value="ACCEPT"><button type="submit" class="btn btn-primary">ACCEPT</button></form></tr>');
+                }
+
+
+            });
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const webSocketBridge = new channels.WebSocketBridge();
+            webSocketBridge.connect('/new-order-notify/');
+            webSocketBridge.listen(function (action) {
+
+                var obj = JSON.parse(action["event"]);
+                console.log(obj);
+
+                if (obj["is_deleted"] === true){
+                    $('#myTable tr#' + obj["data"] + ' td').remove();
+                }else{
+                    $('#myTable tr td').remove();
+                    $('#myTable').append('<tr id="' + obj["data"]["id"] + '"><td>' + obj["data"]["id"] + '</td><td>' + obj["data"]["title"] + '</td><td>' + obj["data"]["priority"] + '</td><td><strong>' + obj["data"]["last_known_state"] + '</strong></td><td><form action="{% url 'store:delivery-order-process' %}" method="post">{% csrf_token %}<input type="hidden" name="order_status" value="ACCEPT"><button type="submit" class="btn btn-primary">ACCEPT</button></form></tr>');
+                }
+            })
+        })
+
+
+    </script>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            demo.initChartist();
+            {% for message in messages %}
+                $.notify({
+                    icon: 'pe-7s-gift',
+                    message: "{{ message }}"
+
+                }, {
+                    type: 'danger',
+                    timer: 4000
+                });
+            {% endfor %}
+        });
+
+
+    </script>
+
+{% endblock %}

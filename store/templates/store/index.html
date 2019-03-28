@@ -1,0 +1,37 @@
+{% extends 'base/layouts.html' %}
+
+{% load static %}
+{% block content %}
+
+    <div class="col-md-4">
+        <div class="card">
+
+            <div class="header">
+                <img src="{% static 'assets/img/checklist.svg' %}" class="img-responsive">
+
+            </div>
+            <div class="content">
+                <a href="{% url 'store:create-store' %}" class="btn btn-primary btn-fill btn-block">CREATE TASK</a>
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-4">
+        <div class="card">
+
+            <div class="header">
+                <img src="{% static 'assets/img/list.svg' %}" class="img-responsive">
+
+            </div>
+            <div class="content">
+                <a href="{% url 'store:task-list' %}" class="btn btn-default btn-fill btn-block">VIEW TASK</a>
+
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
