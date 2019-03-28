@@ -17,7 +17,7 @@ DELIVERY_STATES = (
 
 class StoreManagerGroupRequired(object):
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_anonymous is False:
+        if request.user.is_anonymous is True:
             return redirect("/")
         else:
             if request.user.groups.first().name != "STORE MANAGER":
@@ -31,7 +31,7 @@ class StoreManagerGroupRequired(object):
 
 class DeliveryBoyGroupRequired(object):
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_anonymous is False:
+        if request.user.is_anonymous is True:
             return redirect("/")
         else:
             if request.user.groups.first().name != "DELIVERY BOY":

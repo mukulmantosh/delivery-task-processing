@@ -108,6 +108,8 @@ def store_task_status(sender, instance, created, **kwargs):
         )
 
 
+
+
 @receiver(post_delete, sender=DeliveryTask)
 def store_task_remove(sender, instance, **kwargs):
     read_queue_data = queue.read_data_from_queue()
@@ -146,13 +148,23 @@ def process_delivery_task(sender, instance, created, **kwargs):
                 }
             )
         else:
-
+            queue.read_data_from_queue(acknowledge=True)
             async_to_sync(channel_layer.group_send)(
                 "gossip", {
                     "type": "user.gossip",
                     "event": json.dumps({"is_deleted": True, "data": instance.delivery_task.id}),
                 }
             )
+
+            if queue.read_data_from_queue() is not False:
+                async_to_sync(channel_layer.group_send)(
+                    "gossip", {
+                        "type": "user.gossip",
+                        "event": json.dumps({"is_deleted": False, "data": queue.read_data_from_queue()}),
+                    }
+                )
+
+
 
     else:
         if instance.delivery_status == "DECLINED":
@@ -166,9 +178,20 @@ def process_delivery_task(sender, instance, created, **kwargs):
                 }
             )
         else:
+
             async_to_sync(channel_layer.group_send)(
                 "gossip", {
                     "type": "user.gossip",
                     "event": json.dumps({"is_deleted": True, "data": instance.delivery_task.id}),
                 }
             )
+
+            queue.read_data_from_queue(acknowledge=True)
+            if queue.read_data_from_queue() is not False:
+                async_to_sync(channel_layer.group_send)(
+                    "gossip", {
+                        "type": "user.gossip",
+                        "event": json.dumps({"is_deleted": False, "data": queue.read_data_from_queue()}),
+                    }
+                )
+

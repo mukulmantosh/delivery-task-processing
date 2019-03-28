@@ -1,9 +1,8 @@
-from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView
 from urban_piper.utils import StoreManagerGroupRequired, DeliveryBoyGroupRequired
 from django.db import transaction, IntegrityError
 from . import forms
@@ -115,10 +114,19 @@ class DeliveryOrderProcessView(DeliveryBoyGroupRequired, LoginRequiredMixin, Vie
                     return redirect("store:delivery-order-list")
 
                 with transaction.atomic():
-                    # create new delivery log.
-                    delivery_log_obj = models.DeliveryLogs.objects.create(delivery_task_id=data["id"],
-                                                                          user=request.user,
-                                                                          delivery_status="ACCEPTED")
+
+                    # create new delivery log or update if exists.
+                    try:
+
+                        delivery_log_obj = models.DeliveryLogs.objects.get(delivery_task_id=data["id"],
+                                                                              user=request.user)
+                        delivery_log_obj.delivery_status = "ACCEPTED"
+                        delivery_log_obj.save()
+
+                    except models.DeliveryLogs.DoesNotExist:
+                        delivery_log_obj = models.DeliveryLogs.objects.create(delivery_task_id=data["id"],
+                                                           user=request.user,
+                                                           delivery_status="ACCEPTED")
 
                     models.DeliveryStatus.objects.create(delivery_log=delivery_log_obj, delivery_tasks_id=data["id"],
                                                          delivery_status="ACCEPTED")
@@ -126,9 +134,6 @@ class DeliveryOrderProcessView(DeliveryBoyGroupRequired, LoginRequiredMixin, Vie
                     # update delivery task.
                     delivery_task_obj.last_known_state = "ACCEPTED"
                     delivery_task_obj.save()
-
-                    # acknowledge data in queue.
-                    queue.read_data_from_queue(acknowledge=True)
 
             except IntegrityError as err:
                 transaction.rollback()
@@ -146,6 +151,7 @@ class DeliveryTaskAcceptedOrderView(DeliveryBoyGroupRequired, LoginRequiredMixin
 
     def get(self, request):
         result = models.DeliveryLogs.objects.filter(user=request.user, delivery_status="ACCEPTED")
+        print(result)
         return render(request, self.template_name, {'result': result})
 
     def post(self, request):
