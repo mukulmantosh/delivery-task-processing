@@ -1,9 +1,14 @@
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.views import generic
+from django.views import generic, View
 
+
+class IndexView(View):
+    def get(self, request):
+        return HttpResponse("<h1>Welcome</h1>")
 
 class LoginView(generic.FormView):
     form_class = AuthenticationForm

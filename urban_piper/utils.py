@@ -17,27 +17,26 @@ DELIVERY_STATES = (
 
 class StoreManagerGroupRequired(object):
     def dispatch(self, request, *args, **kwargs):
-        if request.user.groups.first().name != "STORE MANAGER":
-            if request.user.groups.first().name != "DELIVERY BOY":
-                raise PermissionDenied
-            else:
-                return redirect("store:delivery-index")
+        if request.user.is_anonymous is False:
+            return redirect("/")
+        else:
+            if request.user.groups.first().name != "STORE MANAGER":
+                if request.user.groups.first().name != "DELIVERY BOY":
+                    raise PermissionDenied
+                else:
+                    return redirect("store:delivery-index")
 
         return super(StoreManagerGroupRequired, self).dispatch(request, *args, **kwargs)
 
 
 class DeliveryBoyGroupRequired(object):
     def dispatch(self, request, *args, **kwargs):
-        if request.user.groups.first().name != "DELIVERY BOY":
-            if request.user.groups.first().name != "STORE MANAGER":
-                raise PermissionDenied
-            else:
-                return redirect("store:index")
+        if request.user.is_anonymous is False:
+            return redirect("/")
+        else:
+            if request.user.groups.first().name != "DELIVERY BOY":
+                if request.user.groups.first().name != "STORE MANAGER":
+                    raise PermissionDenied
+                else:
+                    return redirect("store:index")
         return super(DeliveryBoyGroupRequired, self).dispatch(request, *args, **kwargs)
-
-
-
-
-
-
-
